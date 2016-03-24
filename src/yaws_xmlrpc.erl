@@ -1,4 +1,3 @@
-%% -*- coding: Latin-1 -*-
 %% Copyright (C) 2003 Joakim Grebenö <jocke@gleipnir.com>.
 %% All rights reserved.
 %%

@@ -7,7 +7,7 @@
 %%% modified (WdJ, May 2007): deal with imports in the WSDL.
 %%% modified (WdJ, August 2007): the WSDL can contain more than 1 schema
 %%% copied from yaws_soap_lib (Kaloyan Dimitrov, February 2012):
-%% to be used for soap12 calls
+%%% to be used for soap12 calls
 
 -module(yaws_soap12_lib).
 
@@ -511,7 +511,7 @@ addSchemas([Xsd| Tail], AccModel, PrefixlessOptions, ImportList) ->
                      {_, Prefix, _} =
                          lists:keyfind(
                            erlsom_lib:getTargetNamespaceFromXsd(Xsd),
-                           1, ImportList),
+                           1, ImportList), 
                      NewOptions = [{prefix, Prefix}|PrefixlessOptions],
                      {ok, Model} =
                          erlsom_compile:compile_parsed_xsd(
@@ -832,7 +832,7 @@ getOperationsFromOperations([#'wsdl:tBindingOperation'{name = Name,
     %% get SOAP action from Choice,
     case Choice of
         [#'soap:tOperation'{soapAction = Action}] ->
-            getOperationsFromOperation(BindingName, BindingType, Ports,
+	    getOperationsFromOperation(BindingName, BindingType, Ports,
                                        Name, Action, Operations, Tail, Acc);
         _ ->
             getOperationsFromOperation(BindingName, BindingType, Ports,

@@ -65,7 +65,7 @@
 encode(Req, []) ->
     encode_part(1, 1, 0, ?T_ABS_URI, <<"">>, <<"">>, <<?SOAP_URI>>, Req);
 encode(Req, As) ->
-        list_to_binary([encode_part(1, 0, 0, ?T_ABS_URI,
+	list_to_binary([encode_part(1, 0, 0, ?T_ABS_URI,
                                     <<"">>, <<"">>, <<?SOAP_URI>>, Req)|
         encode_attachments(As)]).
 

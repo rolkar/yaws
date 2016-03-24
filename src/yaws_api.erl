@@ -8,6 +8,9 @@
 -module(yaws_api).
 -author('klacke@hyber.org').
 
+%% -compile(export_all).
+
+
 -include("../include/yaws.hrl").
 -include("../include/yaws_api.hrl").
 -include("yaws_debug.hrl").
@@ -49,7 +52,6 @@
 
 -export([getconf/0,
          setconf/2,
-         get_listen_port/1,
          embedded_start_conf/1, embedded_start_conf/2,
          embedded_start_conf/3, embedded_start_conf/4]).
 
@@ -75,24 +77,20 @@
          dir_listing/1, dir_listing/2, redirect_self/1]).
 
 -export([arg_clisock/1, arg_client_ip_port/1, arg_headers/1, arg_req/1,
-         arg_orig_req/1, arg_clidata/1, arg_server_path/1, arg_querydata/1,
-         arg_appmoddata/1, arg_docroot/1, arg_docroot_mount/1, arg_fullpath/1,
-         arg_cont/1, arg_state/1, arg_pid/1, arg_opaque/1, arg_appmod_prepath/1,
-         arg_prepath/1,
+         arg_clidata/1, arg_server_path/1, arg_querydata/1, arg_appmoddata/1,
+         arg_docroot/1, arg_docroot_mount/1, arg_fullpath/1, arg_cont/1,
+         arg_state/1, arg_pid/1, arg_opaque/1, arg_appmod_prepath/1, arg_prepath/1,
          arg_pathinfo/1]).
 -export([http_request_method/1, http_request_path/1, http_request_version/1,
-         http_response_version/1, http_response_status/1,
-         http_response_phrase/1,
+         http_response_version/1, http_response_status/1, http_response_phrase/1,
          headers_connection/1, headers_accept/1, headers_host/1,
-         headers_if_modified_since/1, headers_if_match/1,
-         headers_if_none_match/1,
+         headers_if_modified_since/1, headers_if_match/1, headers_if_none_match/1,
          headers_if_range/1, headers_if_unmodified_since/1, headers_range/1,
          headers_referer/1, headers_user_agent/1, headers_accept_ranges/1,
          headers_cookie/1, headers_keep_alive/1, headers_location/1,
          headers_content_length/1, headers_content_type/1,
          headers_content_encoding/1, headers_authorization/1,
-         headers_transfer_encoding/1, headers_x_forwarded_for/1,
-         headers_other/1]).
+         headers_transfer_encoding/1, headers_x_forwarded_for/1, headers_other/1]).
 
 -export([set_header/2, set_header/3, merge_header/2, merge_header/3,
          get_header/2, get_header/3, delete_header/2]).
@@ -106,7 +104,6 @@ arg_clisock(#arg{clisock = X}) -> X.
 arg_client_ip_port(#arg{client_ip_port = X}) -> X.
 arg_headers(#arg{headers = X}) -> X.
 arg_req(#arg{req = X}) -> X.
-arg_orig_req(#arg{orig_req = X}) -> X.
 arg_clidata(#arg{clidata = X}) -> X.
 arg_server_path(#arg{server_path = X}) -> X.
 arg_querydata(#arg{querydata = X}) -> X.
@@ -358,9 +355,9 @@ parse_multi(Data, #mp_parse_state{state=boundary}=ParseState, Acc) ->
         {Pos, Len} ->
             %% If Pos != 0, ignore data preceding the boundary
             case Data of
-                <<_:Pos/binary, Rest/binary>> when size(Rest) < Len+2 ->
+                <<_:Pos/binary, Boundary:Len/binary>> ->
                     %% Not enough data to tell if it is the last boundary or not
-                    {cont, ParseState#mp_parse_state{old_data=Rest}, Acc};
+                    {cont, ParseState#mp_parse_state{old_data=Boundary}, Acc};
                 <<_:Pos/binary, _:Len/binary, "\r\n", Rest/binary>> ->
                     %% It is not the last boundary, so parse the next part
                     NPState = ParseState#mp_parse_state{state=start_headers},
@@ -368,9 +365,6 @@ parse_multi(Data, #mp_parse_state{state=boundary}=ParseState, Acc) ->
                 <<_:Pos/binary, _:Len/binary, "--\r\n", _/binary>> ->
                     %% Match on the last boundary and ignore remaining data
                     {result, Acc};
-                <<_:Pos/binary, Boundary:Len/binary, "--", Rest/binary>> when size(Rest) < 2 ->
-                    %% Partial match on the last boundary; need more data
-		    {cont, ParseState#mp_parse_state{old_data = <<Boundary/binary, "--", Rest/binary>>}, Acc};
                 _ ->
                     {error, malformed_multipart_post}
             end;
@@ -2546,17 +2540,18 @@ sanitize_file_name([]) ->
 setconf(GC0, Groups0) ->
     setconf(GC0, Groups0, true).
 setconf(GC0, Groups0, CheckCertsChanged) ->
-    case CheckCertsChanged of
-        true ->
-            CertCheck = gen_server:call(yaws_server, check_certs, infinity),
-            case lists:member(yes, CertCheck) of
+    CertsChanged = if CheckCertsChanged == true ->
+                           lists:member(yes,gen_server:call(
+                                              yaws_server,
+                                              check_certs, infinity));
                 true ->
+                           false
+                   end,
+    if
+        CertsChanged ->
                     application:stop(ssl),
                     application:start(ssl);
-                false ->
-                    ok
-            end;
-        false ->
+        true ->
             ok
     end,
 
@@ -2573,15 +2568,13 @@ setconf(GC0, Groups0, CheckCertsChanged) ->
             {error, need_restart}
     end.
 
+
+
+
 %% return {ok, GC, Groups}.
 getconf() ->
     gen_server:call(yaws_server, getconf, infinity).
 
-%% return listen port number for the given sconf, useful if yaws is used in
-%% a test scenario where the configured port number is 0 (for requesting an
-%% ephemeral port)
-get_listen_port(SC) ->
-    yaws_server:listen_port(SC).
 
 embedded_start_conf(DocRoot) when is_list(DocRoot) ->
     embedded_start_conf(DocRoot, []).

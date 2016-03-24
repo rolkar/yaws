@@ -1,4 +1,3 @@
-%% -*- coding: Latin-1 -*-
 %%%----------------------------------------------------------------------
 %%% File    : yaws_ls.erl
 %%% Author  : Claes Wikstrom <klacke@hyber.org>
