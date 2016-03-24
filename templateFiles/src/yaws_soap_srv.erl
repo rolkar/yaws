@@ -81,7 +81,7 @@ start_link(L, N) ->
             {error, Emsg};
         {module, erlsom} ->
             gen_server:start_link({local, ?SERVER}, ?MODULE, {L, N}, [])
-    end.
+    end.    
 
 %%% To be called from yaws_rpc.erl
 %%% Return according to yaws_rpc:eval_payload/6

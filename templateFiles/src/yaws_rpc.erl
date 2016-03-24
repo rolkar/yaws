@@ -116,43 +116,43 @@ handle_payload(Args, Handler, Type) ->
     %% haXe parameters are URL encoded
     PL = binary_to_list(Args#arg.clidata),
     {Payload,DecodedStr} =
-        case RpcType of
-            T when T==haxe; T==json ->
+	case RpcType of
+	    T when T==haxe; T==json ->
                 ?Debug("rpc ~p call ~p~n", [T, PL]),
-                {PL, yaws_api:url_decode(PL)};
-            soap_dime ->
-                [{_,_,_,Req}|As] = yaws_dime:decode(Args#arg.clidata),
-                {Args#arg.clidata, {binary_to_list(Req), As}};
-            _ ->
+		{PL, yaws_api:url_decode(PL)};
+	    soap_dime ->
+		[{_,_,_,Req}|As] = yaws_dime:decode(Args#arg.clidata),
+		{Args#arg.clidata, {binary_to_list(Req), As}};
+	    _ ->
                 ?Debug("rpc plaintext call ~p~n", [PL]),
                 {PL, PL}
-        end,
+	end,
     case decode_handler_payload(RpcType, DecodedStr) of
         Batch when RpcType == json, is_list(Batch) ->
             BatchRes =
                 lists:foldl(fun(Req, Acc) ->
-                          Result = check_decoded_payload(Args, Handler,
-                                                         Req, Payload,
-                                                         Type, json),
-                          case Result of
-                              empty ->
-                                  Acc;
-                              {result, _Code, Send} ->
-                                  [Send|Acc];
-                              {send, S} ->
-                                  %% TODO: it would be better if
-                                  %% Result was never of the
-                                  %% {send, ...} variety because
-                                  %% it requires us to take the
-                                  %% content out via searching.
-                                  case lists:keysearch(content,1,S) of
-                                      {value, {content, _, Send}} ->
-                                          [Send|Acc];
-                                      _ ->
-                                          Acc
-                                  end
-                          end
-                  end, [], Batch),
+                                    Result = check_decoded_payload(Args, Handler,
+                                                                   Req, Payload,
+                                                                   Type, json),
+                                    case Result of
+                                        empty ->
+                                            Acc;
+                                        {result, _Code, Send} ->
+                                            [Send|Acc];
+                                        {send, S} ->
+                                            %% TODO: it would be better if
+                                            %% Result was never of the
+                                            %% {send, ...} variety because
+                                            %% it requires us to take the
+                                            %% content out via searching.
+                                            case lists:keysearch(content,1,S) of
+                                                {value, {content, _, Send}} ->
+                                                    [Send|Acc];
+                                                _ ->
+                                                    Acc
+                                            end
+                                    end
+                            end, [], Batch),
             case BatchRes of
                 [] ->
                     %% all notifications, no replies
@@ -200,10 +200,10 @@ check_decoded_payload(Args, Handler, DecodedResult, Payload, Type, RpcType) ->
 %%% and if those are absent we assume the request is JSON.
 recognize_rpc_type(Args) ->
     case (Args#arg.headers)#headers.content_type of
-        "application/dime" -> soap_dime;
-        _ ->
-            OtherHeaders = ((Args#arg.headers)#headers.other),
-            recognize_rpc_hdr([{X,Y,yaws:to_lower(Z),Q,W} ||
+	"application/dime" -> soap_dime;
+	_ ->
+	    OtherHeaders = ((Args#arg.headers)#headers.other),
+	    recognize_rpc_hdr([{X,Y,yaws:to_lower(Z),Q,W} ||
                                   {X,Y,Z,Q,W} <- OtherHeaders])
     end.
 

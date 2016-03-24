@@ -76,3 +76,4 @@ rel/yaws
 dialyzer_warnings
 deps/*
 .eunit/*
+.rebar/*

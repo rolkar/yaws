@@ -41,12 +41,13 @@ MODULES=yaws \
 	yaws_html  \
 	yaws_log_file_h \
 	yaws_rss \
-	yaws_appmod_dav \
-	yaws_runmod_lock \
+	yaws_dav \
+	yaws_davlock \
 	yaws_pam \
 	json json2 jsonrpc yaws_jsonrpc yaws_xmlrpc\
 	haxe yaws_rpc \
 	yaws_soap_srv yaws_soap_lib yaws_soap12_lib \
+	authmod_gssapi \
 	yaws_appmod_cgi \
 	yaws_appmod_fcgi \
 	yaws_sendfile \
@@ -71,7 +72,7 @@ ERLC_FLAGS+=-Werror $(DEBUG_FLAGS) -pa ../../yaws -I ../include
 all: yaws_generated.erl yaws_configure.hrl $(EBIN_FILES)
 
 dav:
-	$(MAKE) MODULES="$(MODULES) yaws_appmod_dav yaws_runmod_lock"
+	$(MAKE) MODULES="$(MODULES) yaws_dav"
 
 $(EBIN_FILES) : ../include/yaws.hrl ../include/yaws_api.hrl
 
@@ -81,11 +82,9 @@ yaws_generated.erl:	yaws_generated.template ../vsn.mk
 	$(MAKE) IS_LOCAL_INSTALL=true gen_yaws_generated
 
 yaws_configure.hrl:	 ../vsn.mk ../include.mk
-	rm -f $@
-	[ $(HAVE_SENDFILE) = true ] && echo '-define(HAVE_SENDFILE, true).' > $@; \
-	[ $(HAVE_ERLANG_SENDFILE) = true ] && echo '-define(HAVE_ERLANG_SENDFILE, true).' >> $@; \
-	[ $(HAVE_CRYPTO_HASH) = true ] && echo '-define(HAVE_CRYPTO_HASH, true).' >> $@; \
-	[ -f $@ ] || touch $@
+	if [  $(HAVE_YAWS_SENDFILE) = "true" ]; then \
+		echo "-define(HAVE_YAWS_SENDFILE, true)." > yaws_configure.hrl; \
+	else touch yaws_configure.hrl; fi
 
 mime_types.erl: ../priv/charset.def ../priv/mime.types \
 				../ebin/yaws_generated.$(EMULATOR) ../ebin/mime_type_c.$(EMULATOR)

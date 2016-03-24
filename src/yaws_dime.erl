@@ -65,16 +65,13 @@
 encode(Req, []) ->
     encode_part(1, 1, 0, ?T_ABS_URI, <<"">>, <<"">>, <<?SOAP_URI>>, Req);
 encode(Req, As) ->
-        list_to_binary([encode_part(1, 0, 0, ?T_ABS_URI,
-                                    <<"">>, <<"">>, <<?SOAP_URI>>, Req)|
+	list_to_binary([encode_part(1, 0, 0, ?T_ABS_URI, <<"">>, <<"">>, <<?SOAP_URI>>, Req)|
         encode_attachments(As)]).
 
 encode_attachments([{attachment, Id, Type, File}]) ->
-    [encode_part(0, 1, 0, ?T_ABS_URI, <<"">>, list_to_binary(Id),
-                 list_to_binary(Type), File)];
+    [encode_part(0, 1, 0, ?T_ABS_URI, <<"">>, list_to_binary(Id), list_to_binary(Type), File)];
 encode_attachments([{attachment, Id, Type, File} | As]) ->
-    [encode_part(0, 0, 0, ?T_ABS_URI, <<"">>, list_to_binary(Id),
-                 list_to_binary(Type), File)|
+    [encode_part(0, 0, 0, ?T_ABS_URI, <<"">>, list_to_binary(Id), list_to_binary(Type), File)|
      encode_attachments(As)].
 
 encode_part(MB, ME, CF, TypeT, Opts, ID, Type, Data) ->

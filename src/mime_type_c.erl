@@ -60,12 +60,11 @@ generate(ModFile, GInfo, SInfoMap) ->
             %% "The pattern 'false' can never match the type 'true'"
             Inc = case yaws_generated:is_local_install() of
                       true ->
-                          EbinDir = filename:dirname(code:which(?MODULE)),
-                          IncDir  = filename:join(filename:dirname(EbinDir),
-                                                  "include"),
-                          F = filename:absname(
-                                filename:join([IncDir, "yaws.hrl"])
+                          Info   = ?MODULE:module_info(compile),
+                          SrcDir = filename:dirname(
+                                     proplists:get_value(source, Info)
                                ),
+                          F = filename:join([SrcDir, "../include/yaws.hrl"]),
                           "-include(\""++F++"\").";
                       _ ->
                           "-include_lib(\"yaws/include/yaws.hrl\")."

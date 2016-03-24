@@ -468,8 +468,7 @@ ibrowse_request(URL, SoapAction, Request, Options, Headers, ContentType) ->
                           {"SOAPAction", SoapAction} | Headers],
             case ibrowse:send_req(URL, NewHeaders, post, Request, Options) of
                 {ok, Status, ResponseHeaders, ResponseBody} ->
-                    {ok, list_to_integer(Status), ResponseHeaders,
-                     ResponseBody};
+                    {ok, list_to_integer(Status), ResponseHeaders, ResponseBody};
                 {error, Reason} ->
                     {error, Reason}
             end;
@@ -623,8 +622,7 @@ getOperationsFromBinding(#'wsdl:tBinding'{name = BindingName,
     getOperationsFromOperations(Operations, BindingName, BindingType,
                                 Operations, Ports, []).
 
-getOperationsFromOperations([], _BindingName, _BindingType, _Operations,
-                            _Ports, Acc) ->
+getOperationsFromOperations([], _BindingName, _BindingType, _Operations, _Ports, Acc) ->
     Acc;
 
 getOperationsFromOperations([#'wsdl:tBindingOperation'{name = Name,
@@ -678,8 +676,7 @@ searchPorts(BindingName, [Port | Tail], Acc) ->
 is_string([]) -> yes;
 is_string(List) -> is_string(List, non_unicode).
 
-is_string([C|Rest], non_unicode)
-  when C >= 0, C =< 255 -> is_string(Rest, non_unicode);
+is_string([C|Rest], non_unicode) when C >= 0, C =< 255 -> is_string(Rest, non_unicode);
 is_string([C|Rest], _) when C =< 65000 -> is_string(Rest, unicode);
 is_string([], non_unicode) -> yes;
 is_string([], unicode) -> unicode;
