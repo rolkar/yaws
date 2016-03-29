@@ -673,7 +673,8 @@ fload(FD, globals, GC, C, Cs, Lno, Chars) ->
                     fload(FD, globals, GC#gconf{logdir = Dir},
                           C, Cs, Lno+1, Next);
                 false ->
-                    {error, ?F("Expect directory at line ~w (logdir ~s)", [Lno, Dir])}
+                    {error, ?F("Expect directory at line ~w (logdir ~s)",
+                               [Lno, Dir])}
             end;
 
         ["ebin_dir", '=', Ebindir] ->
@@ -1286,14 +1287,16 @@ fload(FD, server, GC, C, Cs, Lno, Chars) ->
                     case C#sconf.listen of
                         [] ->
                             C2 = C#sconf{listen = {127,0,0,1}},
-                            fload(FD, globals, GC, undefined, [C2|Cs], Lno+1, Next);
+                            fload(FD, globals, GC, undefined, [C2|Cs],
+                                  Lno+1, Next);
                         Ls ->
                             Cs2 = [C#sconf{listen=L} || L <- Ls] ++ Cs,
                             fload(FD, globals, GC, undefined, Cs2, Lno+1, Next)
                     end;
                 false ->
                     {error,
-                     ?F("No valid docroot configured for virthost '~s' (port: ~w)",
+                     ?F("No valid docroot configured for virthost "
+                        "'~s' (port: ~w)",
                         [C#sconf.servername, C#sconf.port])}
             end;
 

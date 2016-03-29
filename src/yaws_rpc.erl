@@ -130,7 +130,8 @@ handle_payload(Args, Handler, Type) ->
     case decode_handler_payload(RpcType, DecodedStr) of
         Batch when RpcType == json, is_list(Batch) ->
             BatchRes =
-                lists:foldl(fun(Req, Acc) ->
+                lists:foldl(
+                  fun(Req, Acc) ->
                           Result = check_decoded_payload(Args, Handler,
                                                          Req, Payload,
                                                          Type, json),
@@ -264,7 +265,8 @@ eval_payload(Args, {M, F}, Payload, {session, CookieName}, ID, RpcType) ->
             %% be compatible with xmlrpc module
             CO = handle_cookie(Cookie, CookieName, SessionValue,
                                NewSessionValue, M, F),
-            {send, encode_send(Args, RespCode, ResponsePayload, CO, ID, RpcType)}
+            {send, encode_send(Args, RespCode,
+                               ResponsePayload, CO, ID, RpcType)}
     end;
 
 %%%

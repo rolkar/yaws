@@ -271,7 +271,8 @@ vsn(IP) when size(IP) =:= 8 ->
     "(ipv6)".
 
 -define(IPV4_FMT, "~p.~p.~p.~p").
--define(IPV6_FMT, "~2.16.0b~2.16.0b:~2.16.0b~2.16.0b:~2.16.0b~2.16.0b:~2.16.0b~2.16.0b").
+-define(IPV6_FMT,
+        "~2.16.0b~2.16.0b:~2.16.0b~2.16.0b:~2.16.0b~2.16.0b:~2.16.0b~2.16.0b").
 
 format_ip(IP) ->
     case size(IP) of
@@ -336,7 +337,8 @@ parse([], Acc) ->
     Acc;
 parse([#sconf{stats=undefined}|Tail], Acc) ->
     parse(Tail, Acc);
-parse([#sconf{listen=IP, port=Port, servername=Servername, stats=Stats}|Tail], Acc) ->
+parse([#sconf{listen=IP, port=Port, servername=Servername,
+              stats=Stats}|Tail], Acc) ->
     Host = {Servername, IP, Port, Stats},
     parse(Tail, [Host|Acc]).
 

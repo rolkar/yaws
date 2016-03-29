@@ -590,7 +590,8 @@ gserv_loop(GS, Ready, Rnum, Last) ->
                     ?MODULE:gserv_loop(GS2, Ready, Rnum, Last);
                 Rnum < PoolSize ->
                     %% cache this process for 10 secs
-                    ?MODULE:gserv_loop(GS2, [{now(), From} | Ready], Rnum+1, Last)
+                    ?MODULE:gserv_loop(GS2, [{now(), From} | Ready],
+                                       Rnum+1, Last)
             end;
         {'EXIT', Pid, Reason} ->
             case get(top) of
@@ -626,7 +627,8 @@ gserv_loop(GS, Ready, Rnum, Last) ->
                             case lists:keysearch(Pid, 2, Ready) of
                                 {value, _} ->
                                     Ready1 = lists:keydelete(Pid, 2, Ready),
-                                    ?MODULE:gserv_loop(GS2, Ready1, Rnum-1, Last);
+                                    ?MODULE:gserv_loop(GS2, Ready1,
+                                                       Rnum-1, Last);
                                 false ->
                                     ?MODULE:gserv_loop(GS2, Ready, Rnum, Last)
                             end
@@ -872,9 +874,9 @@ listen_opts(SC) ->
             {ip, SC#sconf.listen},
             {packet, http},
             {packet_size, 16#4000},
-     {recbuf, 8192},
+            {recbuf, 8192},
             {reuseaddr, true},
-     {backlog, 1024},
+            {backlog, 1024},
             {active, false}
             | proplists:get_value(listen_opts, SC#sconf.soptions, [])
            ] ++ InetType,
@@ -1147,8 +1149,11 @@ aloop(CliSock, {IP,Port}=IPPort, GS, Num) ->
                                  undefined ->
                                      continue;
                                  DispatchMod ->
-                                     Arg = make_arg(SC, CliSock, IPPort, H, Req, undefined),
-                                     ok = inet:setopts(CliSock, [{packet, raw}, {active, false}]),
+                                     Arg = make_arg(SC, CliSock, IPPort,
+                                                    H, Req, undefined),
+                                     ok = inet:setopts(CliSock,
+                                                       [{packet, raw},
+                                                        {active, false}]),
                                      DispatchMod:dispatch(Arg)
                              end,
             case DispatchResult of
@@ -1166,7 +1171,8 @@ aloop(CliSock, {IP,Port}=IPPort, GS, Num) ->
                     ?Debug("SC: ~s", [?format_record(SC, sconf)]),
                     ?TC([{record, SC, sconf}]),
                     ?Debug("Headers = ~s~n", [?format_record(H, headers)]),
-                    ?Debug("Request = ~s~n", [?format_record(Req, http_request)]),
+                    ?Debug("Request = ~s~n",
+                           [?format_record(Req, http_request)]),
                     run_trace_filter(GS, IP, Req, H),
                     yaws_stats:hit(),
                     check_keepalive_maxuses(GS, Num),
@@ -1178,7 +1184,8 @@ aloop(CliSock, {IP,Port}=IPPort, GS, Num) ->
                                    deliver_xxx(CliSock, Req, Status, Msg)
                            end,
                     Call2 = fix_keepalive_maxuses(Call),
-                    handle_method_result(Call2, CliSock, IPPort, GS, Req, H, Num)
+                    handle_method_result(Call2, CliSock, IPPort,
+                                         GS, Req, H, Num)
             end;
         closed ->
             case yaws_trace:get_type(GS#gs.gconf) of
@@ -1388,10 +1395,8 @@ comp_sname(_, []) ->
     false;
 comp_sname([C1|T1], [C2|T2]) ->
     case string:to_lower(C1) == string:to_lower(C2) of
-        true ->
-            comp_sname(T1, T2);
-        false ->
-            false
+        true -> comp_sname(T1, T2);
+        false -> false
     end.
 
 pick_sconf(GC, H, Group) ->
@@ -1527,7 +1532,8 @@ not_implemented(CliSock, _IPPort, Req, Head) ->
     case ?sc_has_dav(SC) of
         true ->
             %% body is handled by yaws_dav:put/1
-            ok = yaws:setopts(CliSock, [{packet, raw}, binary], yaws:is_ssl(SC)),
+            ok = yaws:setopts(CliSock, [{packet, raw}, binary],
+                              yaws:is_ssl(SC)),
             ARG = make_arg(CliSock, IPPort, Head, Req, undefined),
             handle_request(CliSock, ARG, 0);
         false ->
@@ -4570,7 +4576,8 @@ maybe_return_path_info(SC, Comps, RevFile, DR, VirtualDir) ->
             %% - logging?
             #urltype{type=error};
         {ok, FI, FullPath, HeadComps, File, TrailComps, Type, Mime} ->
-            %%'File' is the only comp that has been returned without trailing "/"
+            %%'File' is the only comp that has been returned
+            %% without trailing "/"
 
             {Type2, Mime2} =
                 case member(Type, SC#sconf.allowed_scripts) of
@@ -4659,7 +4666,8 @@ path_info_split(SC, [H|T], {DR, VirtualDir}, AccPathInfo) ->
                             {not_a_script, error};
                         _Err ->
                             %%just looked like a script - keep going.
-                            path_info_split(SC, T, {DR, VirtualDir}, [H|AccPathInfo])
+                            path_info_split(SC, T, {DR, VirtualDir},
+                                            [H|AccPathInfo])
                     end
             end
     end;
@@ -4681,7 +4689,8 @@ suffix_from_rev([], _A) ->
 %% - single-level concatenatenation of a list of path components which
 %% already contain slashes.
 %% tests suggest it's significantly faster than lists:flatten or lists:concat
-%% & marginally faster than lists:append (for paths of 3 or more segments anyway)
+%% & marginally faster than lists:append
+%% (for paths of 3 or more segments anyway)
 %% tested with various fairly short path lists - see src/benchmarks folder
 %%
 
@@ -4693,7 +4702,8 @@ conc_path([H|T]) ->
 
 %% tail-recursive version slower for longer paths according to bench.erl
 %% (mainly because we need to do 'Acc ++ H' rather than 'H ++ Acc')
-%% Tail recursion not very useful here anyway as we're dealing with short strings.
+%% Tail recursion not very useful here anyway as we're
+%% dealing with short strings.
 %%conc_path2([]) ->
 %%        [];
 %%conc_path2([H|T]) ->
@@ -4730,13 +4740,15 @@ ret_user_dir(Upath)  ->
                         Home ->
                             DR2 = Home ++ "/public_html/",
                             SC2 = SC#sconf{
-                                    allowed_scripts = SC#sconf.tilde_allowed_scripts,
+                                    allowed_scripts =
+                                        SC#sconf.tilde_allowed_scripts,
                                     docroot=DR2},
                             put(sc, SC2),
 
                             %% !todo - review interactions between Virtual
                             %% Dirs & Home Dir paths.
-                            %% VirtualDir hardcoded empty is not nice behaviour -
+                            %% VirtualDir hardcoded empty is not
+                            %% nice behaviour -
                             %% a rewrite mod author may reasonably expect to
                             %% be able to have influence here.
 

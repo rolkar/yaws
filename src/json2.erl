@@ -276,7 +276,8 @@ scan_fraction(Ds, I, X) -> scan_fraction(Ds, [], I, X).
 
 scan_fraction([], _Fs, _I, X) -> {more, X};
 scan_fraction(eof, Fs, I, _X) ->
-    R = list_to_float(lists:append([integer_to_list(I), ".", lists:reverse(Fs)])),
+    R = list_to_float(lists:append([integer_to_list(I), ".",
+                                    lists:reverse(Fs)])),
     {done, {ok, R}, eof};
 scan_fraction([D | Ds], Fs, I, X) when D >= $0, D =< $9 ->
     scan_fraction(Ds, [D | Fs], I, X);
@@ -284,7 +285,8 @@ scan_fraction([D | Ds], Fs, I, X) when D == $E; D == $e ->
     R = lists:append([integer_to_list(I), ".", lists:reverse(Fs)]),
     scan_exponent_begin(Ds, R, X);
 scan_fraction(Rest, Fs, I, _X) ->
-    R = list_to_float(lists:append([integer_to_list(I), ".", lists:reverse(Fs)])),
+    R = list_to_float(lists:append([integer_to_list(I), ".",
+                                    lists:reverse(Fs)])),
     {done, {ok, R}, Rest}.
 
 scan_exponent_begin(Ds, R, X) ->
@@ -533,7 +535,8 @@ is_string(List) -> is_string(List, non_unicode).
 
 is_string([C|Rest], non_unicode) when is_integer(C), C >= 0, C =< 255 ->
     is_string(Rest, non_unicode);
-is_string([C|Rest], _) when is_integer(C), C =< 65000 -> is_string(Rest, unicode);
+is_string([C|Rest], _) when is_integer(C), C =< 65000 ->
+    is_string(Rest, unicode);
 is_string([], non_unicode) -> yes;
 is_string([], unicode) -> unicode;
 is_string(_, _) -> no.
@@ -563,7 +566,8 @@ test() ->
                                       ok ->
                                           Fs;
                                       Reason ->
-                                          [{round_trip_one_char, E, Reason} | Fs]
+                                          [{round_trip_one_char, E, Reason} |
+                                           Fs]
                                   end;
                               Reason ->
                                   [{round_trip, E, Reason} | Fs]

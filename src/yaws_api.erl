@@ -1496,7 +1496,8 @@ capitalize_header(Name) ->
     %% headers less than 20 characters long. In R16B that length was raised
     %% to 50. Using decode_packet lets us be portable.
     {ok, {http_header, _, Result, _, _}, _} =
-        erlang:decode_packet(httph, list_to_binary([Name, <<": x\r\n\r\n">>]), []),
+        erlang:decode_packet(httph, list_to_binary([Name, <<": x\r\n\r\n">>]),
+                             []),
     Result.
 
 reformat_request(#http_request{method = bad_request}) ->

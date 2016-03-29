@@ -463,7 +463,8 @@ setup_mime_types_info(SL, DefaultMTI) ->
             M;
         MProps when is_list(MProps) ->
             M = #mime_types_info{},
-            #mime_types_info{mime_types_file = lkup(mime_types_file, MProps,
+            #mime_types_info{mime_types_file =
+                                 lkup(mime_types_file, MProps,
                                       M#mime_types_info.mime_types_file),
                              types           = lkup(types, MProps,
                                                     M#mime_types_info.types),
@@ -570,8 +571,10 @@ setup_sconf(SL, SC) ->
                                         SC#sconf.partial_post_size),
            appmods               = lkup(appmods, SL, SC#sconf.appmods),
            expires               = lkup(expires, SL, SC#sconf.expires),
-           errormod_401          = lkup(errormod_401, SL, SC#sconf.errormod_401),
-           errormod_404          = lkup(errormod_404, SL, SC#sconf.errormod_404),
+           errormod_401          = lkup(errormod_401, SL,
+                                        SC#sconf.errormod_401),
+           errormod_404          = lkup(errormod_404, SL,
+                                        SC#sconf.errormod_404),
            errormod_crash        = lkup(errormod_crash, SL,
                                         SC#sconf.errormod_crash),
            arg_rewrite_mod       = lkup(arg_rewrite_mod, SL,

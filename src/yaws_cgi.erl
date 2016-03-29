@@ -23,9 +23,9 @@
 
 -export([cgi_worker/7, fcgi_worker/5]).
 
-%%%==============================================================================
+%%%=====================================================================
 %%% Code shared between CGI and FastCGI
-%%%==============================================================================
+%%%=====================================================================
 
 -define(ASCII_NEW_LINE, 10).
 -define(ASCII_CARRIAGE_RETURN, 13).
@@ -98,7 +98,8 @@ get_from_worker(Arg, WorkerPid) ->
                    end,
             case Next of
                 normal ->
-                    {ContentResps, NotCtnt} = filter2(fun iscontent/1, AllResps),
+                    {ContentResps, NotCtnt} =
+                        filter2(fun iscontent/1, AllResps),
                     {RedirResps, Others} = filter2(fun isredirect/1, NotCtnt),
                     case RedirResps of
                         [R|_] ->
@@ -467,9 +468,9 @@ get_opt(Key, List, Default) ->
     end.
 
 
-%%%==============================================================================
+%%%=====================================================================
 %%% Code specific to CGI
-%%%==============================================================================
+%%%=====================================================================
 
 %%%  TO DO:  Handle failure and timeouts.
 
@@ -1086,7 +1087,8 @@ fcgi_encode_name_value(Name, Value) when is_list(Name) and is_list(Value) ->
                         true ->
                             <<(ValueSize bor 16#80000000):32>>
                     end,
-    list_to_binary([<<NameSizeData/binary, ValueSizeData/binary>>, Name, Value]).
+    list_to_binary([<<NameSizeData/binary, ValueSizeData/binary>>,
+                    Name, Value]).
 
 
 fcgi_header_loop(WorkerState) ->

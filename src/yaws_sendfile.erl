@@ -35,10 +35,8 @@ bytes_to_transfer(Filename, Offset, Count) ->
     case Count of
         all ->
             case file:read_file_info(Filename) of
-                {ok, #file_info{size = Size}} ->
-                    Size - Offset;
-                Error ->
-                    Error
+                {ok, #file_info{size = Size}} -> Size - Offset;
+                Error -> Error
             end;
         Count when is_integer(Count) ->
             Count;
